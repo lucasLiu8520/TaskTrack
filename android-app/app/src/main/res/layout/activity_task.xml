@@ -41,6 +41,27 @@
             android:text="Add Task"
             android:layout_marginBottom="20dp" />
 
+        <EditText
+            android:id="@+id/taskIdEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Task ID to update"
+            android:inputType="number"
+            android:layout_marginBottom="12dp" />
+
+        <Spinner
+            android:id="@+id/statusSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/updateStatusButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update Task Status"
+            android:layout_marginBottom="20dp" />
+
         <TextView
             android:id="@+id/tasksTextView"
             android:layout_width="match_parent"
