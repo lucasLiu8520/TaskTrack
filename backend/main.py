@@ -12,7 +12,6 @@ from backend import storage
 
 app = FastAPI(title="COSC310 Task Management API")
 
-# Allow frontend clients such as Android emulator / local tools to access the API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,12 +23,82 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "COSC310 Task Management API is running"}
+    return {
+        "message": "COSC310 Task Management API is running",
+        "note": "Data is stored in memory and resets when the server restarts."
+    }
 
 
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.post("/dev/reset")
+## Quickly clear everything
+def reset_data():
+    storage.projects.clear()
+    storage.tasks.clear()
+    storage.project_id_counter = 1
+    storage.task_id_counter = 1
+    return {"message": "All in-memory data has been reset."}
+
+
+@app.post("/dev/seed")
+## Quickly repopulate the backend with sample content
+def seed_data():
+    storage.projects.clear()
+    storage.tasks.clear()
+    storage.project_id_counter = 1
+    storage.task_id_counter = 1
+
+    project1 = Project(
+        id=storage.project_id_counter,
+        name="COSC310 Demo Project",
+        description="Demo project for Android integration"
+    )
+    storage.projects.append(project1)
+    storage.project_id_counter += 1
+
+    project2 = Project(
+        id=storage.project_id_counter,
+        name="Personal Tasks",
+        description="General personal task list"
+    )
+    storage.projects.append(project2)
+    storage.project_id_counter += 1
+
+    task1 = Task(
+        id=storage.task_id_counter,
+        title="Build Android UI",
+        description="Create project and task screens",
+        status=TaskStatus.IN_PROGRESS,
+        project_id=1
+    )
+    storage.tasks.append(task1)
+    storage.task_id_counter += 1
+
+    task2 = Task(
+        id=storage.task_id_counter,
+        title="Test API integration",
+        description="Verify Android can load projects and tasks",
+        status=TaskStatus.TODO,
+        project_id=1
+    )
+    storage.tasks.append(task2)
+    storage.task_id_counter += 1
+
+    task3 = Task(
+        id=storage.task_id_counter,
+        title="Buy groceries",
+        description="Milk, eggs, fruit",
+        status=TaskStatus.DONE,
+        project_id=2
+    )
+    storage.tasks.append(task3)
+    storage.task_id_counter += 1
+
+    return {"message": "Sample in-memory data has been seeded."}
 
 
 @app.get("/projects", response_model=list[Project])
