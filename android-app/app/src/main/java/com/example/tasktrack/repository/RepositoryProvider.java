@@ -1,25 +1,27 @@
 package com.example.tasktrack.repository;
 
+import android.content.Context;
+
 import com.example.tasktrack.config.AppConfig;
 import com.example.tasktrack.config.AppMode;
 
 public class RepositoryProvider {
+    // RepositoryProvider accept Context and pass it through
 
-    public static ProjectRepository getProjectRepository() {
+    public static ProjectRepository getProjectRepository(Context context) {
         if (AppConfig.CURRENT_MODE == AppMode.REMOTE) {
             return new RemoteProjectRepository();
         }
 
-        // Local implementation will be added later
-        return new RemoteProjectRepository();
+        return new LocalProjectRepository(context);
     }
 
-    public static TaskRepository getTaskRepository() {
+    public static TaskRepository getTaskRepository(Context context) {
         if (AppConfig.CURRENT_MODE == AppMode.REMOTE) {
             return new RemoteTaskRepository();
         }
 
-        // Local implementation will be added later
-        return new RemoteTaskRepository();
+        return new LocalTaskRepository(context);
     }
+    
 }

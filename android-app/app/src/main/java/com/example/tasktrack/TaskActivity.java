@@ -110,7 +110,7 @@ public class TaskActivity extends AppCompatActivity {
 
         projectTitleTextView.setText(projectName != null ? projectName : "Unknown Project");
 
-        taskRepository = RepositoryProvider.getTaskRepository();
+        taskRepository = RepositoryProvider.getTaskRepository(this);
 
         if (projectId == -1) {
             Toast.makeText(this, "Invalid project ID.", Toast.LENGTH_SHORT).show();
@@ -132,37 +132,41 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void loadTasks() {
-    taskRepository.getTasksForProject(projectId, new DataCallback<List<Task>>() {
-        @Override
-        public void onSuccess(List<Task> tasks) {
-            taskObjects.clear();
-            taskDisplayTexts.clear();
+        taskRepository.getTasksForProject(projectId, new DataCallback<List<Task>>() {
+            @Override
+            public void onSuccess(List<Task> tasks) {
+                runOnUiThread(() -> {
+                    taskObjects.clear();
+                    taskDisplayTexts.clear();
 
-            taskObjects.addAll(tasks);
+                    taskObjects.addAll(tasks);
 
-            for (Task task : tasks) {
-                String displayText =
-                        "ID: " + task.getId() +
-                        " | " + task.getTitle() +
-                        "\nStatus: " + task.getStatus() +
-                        "\nDescription: " + task.getDescription();
-                taskDisplayTexts.add(displayText);
+                    for (Task task : tasks) {
+                        String displayText =
+                                "ID: " + task.getId() +
+                                        " | " + task.getTitle() +
+                                        "\nStatus: " + task.getStatus() +
+                                        "\nDescription: " + task.getDescription();
+                        taskDisplayTexts.add(displayText);
+                    }
+
+                    if (taskDisplayTexts.isEmpty()) {
+                        taskDisplayTexts.add("No tasks found for this project.");
+                    }
+
+                    taskAdapter.notifyDataSetChanged();
+                });
             }
 
-            if (taskDisplayTexts.isEmpty()) {
-                taskDisplayTexts.add("No tasks found for this project.");
+            @Override
+            public void onError(String errorMessage) {
+                runOnUiThread(() -> {
+                    taskObjects.clear();
+                    taskDisplayTexts.clear();
+                    taskDisplayTexts.add(errorMessage);
+                    taskAdapter.notifyDataSetChanged();
+                });
             }
-
-            taskAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onError(String errorMessage) {
-            taskObjects.clear();
-            taskDisplayTexts.clear();
-            taskDisplayTexts.add(errorMessage);
-            taskAdapter.notifyDataSetChanged();
-        }
         });
     }
 
@@ -178,17 +182,19 @@ public class TaskActivity extends AppCompatActivity {
         taskRepository.createTask(projectId, title, description, new DataCallback<Task>() {
             @Override
             public void onSuccess(Task result) {
-                Toast.makeText(TaskActivity.this, "Task created successfully.", Toast.LENGTH_SHORT).show();
-
-                taskTitleEditText.setText("");
-                taskDescriptionEditText.setText("");
-
-                loadTasks();
+                runOnUiThread(() -> {
+                    Toast.makeText(TaskActivity.this, "Task created successfully.", Toast.LENGTH_SHORT).show();
+                    taskTitleEditText.setText("");
+                    taskDescriptionEditText.setText("");
+                    loadTasks();
+                });
             }
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                runOnUiThread(() ->
+                        Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show()
+                );
             }
         });
     }
@@ -207,14 +213,18 @@ public class TaskActivity extends AppCompatActivity {
         taskRepository.updateTaskStatus(taskId, selectedStatus, new DataCallback<Task>() {
             @Override
             public void onSuccess(Task result) {
-                Toast.makeText(TaskActivity.this, "Task status updated.", Toast.LENGTH_SHORT).show();
-                taskIdEditText.setText("");
-                loadTasks();
+                runOnUiThread(() -> {
+                    Toast.makeText(TaskActivity.this, "Task status updated.", Toast.LENGTH_SHORT).show();
+                    taskIdEditText.setText("");
+                    loadTasks();
+                });
             }
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                runOnUiThread(() ->
+                        Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show()
+                );
             }
         });
     }

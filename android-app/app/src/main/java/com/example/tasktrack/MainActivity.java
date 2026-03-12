@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        projectRepository = RepositoryProvider.getProjectRepository();
+        projectRepository = RepositoryProvider.getProjectRepository(this);
 
         addProjectButton.setOnClickListener(v -> createProject());
 
@@ -81,28 +81,32 @@ public class MainActivity extends AppCompatActivity {
         projectRepository.getProjects(new DataCallback<List<Project>>() {
             @Override
             public void onSuccess(List<Project> projects) {
-                projectObjects.clear();
-                projectDisplayNames.clear();
+                runOnUiThread(() -> {
+                    projectObjects.clear();
+                    projectDisplayNames.clear();
 
-                projectObjects.addAll(projects);
+                    projectObjects.addAll(projects);
 
-                for (Project project : projects) {
-                    projectDisplayNames.add(project.getName());
-                }
+                    for (Project project : projects) {
+                        projectDisplayNames.add(project.getName());
+                    }
 
-                if (projectDisplayNames.isEmpty()) {
-                    projectDisplayNames.add("No projects found.");
-                }
+                    if (projectDisplayNames.isEmpty()) {
+                        projectDisplayNames.add("No projects found.");
+                    }
 
-                adapter.notifyDataSetChanged();
+                    adapter.notifyDataSetChanged();
+                });
             }
 
             @Override
             public void onError(String errorMessage) {
-                projectObjects.clear();
-                projectDisplayNames.clear();
-                projectDisplayNames.add(errorMessage);
-                adapter.notifyDataSetChanged();
+                runOnUiThread(() -> {
+                    projectObjects.clear();
+                    projectDisplayNames.clear();
+                    projectDisplayNames.add(errorMessage);
+                    adapter.notifyDataSetChanged();
+                });
             }
         });
     }
@@ -119,17 +123,19 @@ public class MainActivity extends AppCompatActivity {
         projectRepository.createProject(name, description, new DataCallback<Project>() {
             @Override
             public void onSuccess(Project result) {
-                Toast.makeText(MainActivity.this, "Project created successfully.", Toast.LENGTH_SHORT).show();
-
-                projectNameEditText.setText("");
-                projectDescriptionEditText.setText("");
-
-                loadProjects();
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Project created successfully.", Toast.LENGTH_SHORT).show();
+                    projectNameEditText.setText("");
+                    projectDescriptionEditText.setText("");
+                    loadProjects();
+                });
             }
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                runOnUiThread(() ->
+                        Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show()
+                );
             }
         });
     }
