@@ -1,6 +1,7 @@
 package com.example.tasktrack.network;
 
 import com.example.tasktrack.model.Project;
+import com.example.tasktrack.model.ProjectCreateRequest;
 import com.example.tasktrack.model.Task;
 import com.example.tasktrack.model.TaskCreateRequest;
 import com.example.tasktrack.model.TaskStatusUpdateRequest;
@@ -19,6 +20,9 @@ public interface ApiService {
     @GET("projects")
     Call<List<Project>> getProjects();
 
+    @POST("projects")
+    Call<Project> createProject(@Body ProjectCreateRequest projectRequest);
+
     @GET("projects/{projectId}/tasks")
     Call<List<Task>> getTasksForProject(@Path("projectId") int projectId);
 
@@ -29,7 +33,6 @@ public interface ApiService {
     );
 
     @PATCH("tasks/{taskId}/status")
-    // as the backend route is PATCH /tasks/{task_id}/status
     Call<Task> updateTaskStatus(
             @Path("taskId") int taskId,
             @Body TaskStatusUpdateRequest statusRequest
