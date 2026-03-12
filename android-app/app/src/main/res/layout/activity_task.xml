@@ -45,8 +45,9 @@
             android:id="@+id/taskIdEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Task ID to update"
+            android:hint="Selected task ID"
             android:inputType="number"
+            android:enabled="false"
             android:layout_marginBottom="12dp" />
 
         <Spinner
@@ -63,11 +64,19 @@
             android:layout_marginBottom="20dp" />
 
         <TextView
-            android:id="@+id/tasksTextView"
-            android:layout_width="match_parent"
+            android:id="@+id/tasksHeaderTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tasks will be shown here"
-            android:textSize="18sp" />
+            android:text="Tasks"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <ListView
+            android:id="@+id/tasksListView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginBottom="12dp" />
 
     </LinearLayout>
 </ScrollView>
