@@ -25,6 +25,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.example.tasktrack.repository.DataCallback;
+import com.example.tasktrack.repository.RepositoryProvider;
+import com.example.tasktrack.repository.TaskRepository;
+
 public class TaskActivity extends AppCompatActivity {
 
     private TextView projectTitleTextView;
@@ -38,6 +42,8 @@ public class TaskActivity extends AppCompatActivity {
 
     private int projectId;
     private String projectName;
+
+    private TaskRepository taskRepository;
 
     private final List<Task> taskObjects = new ArrayList<>();
     // stores the real Task objects from the backend
@@ -104,6 +110,8 @@ public class TaskActivity extends AppCompatActivity {
 
         projectTitleTextView.setText(projectName != null ? projectName : "Unknown Project");
 
+        taskRepository = RepositoryProvider.getTaskRepository();
+
         if (projectId == -1) {
             Toast.makeText(this, "Invalid project ID.", Toast.LENGTH_SHORT).show();
             addTaskButton.setEnabled(false);
@@ -124,48 +132,37 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void loadTasks() {
-        // ensures that after create/update, the visible list stays accurate
-        ApiService apiService = ApiClient.getApiService();
+    taskRepository.getTasksForProject(projectId, new DataCallback<List<Task>>() {
+        @Override
+        public void onSuccess(List<Task> tasks) {
+            taskObjects.clear();
+            taskDisplayTexts.clear();
 
-        apiService.getTasksForProject(projectId).enqueue(new Callback<List<Task>>() {
-            @Override
-            public void onResponse(Call<List<Task>> call, Response<List<Task>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    taskObjects.clear();
-                    taskDisplayTexts.clear();
+            taskObjects.addAll(tasks);
 
-                    List<Task> tasks = response.body();
-                    taskObjects.addAll(tasks);
-
-                    for (Task task : tasks) {
-                        String displayText =
-                                "ID: " + task.getId() +
-                                " | " + task.getTitle() +
-                                "\nStatus: " + task.getStatus() +
-                                "\nDescription: " + task.getDescription();
-                        taskDisplayTexts.add(displayText);
-                    }
-
-                    if (taskDisplayTexts.isEmpty()) {
-                        taskDisplayTexts.add("No tasks found for this project.");
-                    }
-
-                    taskAdapter.notifyDataSetChanged();
-                } else {
-                    taskObjects.clear();
-                    taskDisplayTexts.clear();
-                    taskDisplayTexts.add("Failed to load tasks. Response code: " + response.code());
-                    taskAdapter.notifyDataSetChanged();
-                }
+            for (Task task : tasks) {
+                String displayText =
+                        "ID: " + task.getId() +
+                        " | " + task.getTitle() +
+                        "\nStatus: " + task.getStatus() +
+                        "\nDescription: " + task.getDescription();
+                taskDisplayTexts.add(displayText);
             }
 
-            @Override
-            public void onFailure(Call<List<Task>> call, Throwable t) {
-                taskObjects.clear();
-                taskDisplayTexts.clear();
-                taskDisplayTexts.add("Network error: " + t.getMessage());
-                taskAdapter.notifyDataSetChanged();
+            if (taskDisplayTexts.isEmpty()) {
+                taskDisplayTexts.add("No tasks found for this project.");
             }
+
+            taskAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onError(String errorMessage) {
+            taskObjects.clear();
+            taskDisplayTexts.clear();
+            taskDisplayTexts.add(errorMessage);
+            taskAdapter.notifyDataSetChanged();
+        }
         });
     }
 
@@ -178,31 +175,20 @@ public class TaskActivity extends AppCompatActivity {
             return;
         }
 
-        TaskCreateRequest request = new TaskCreateRequest(title, description);
-        ApiService apiService = ApiClient.getApiService();
-
-        apiService.createTask(projectId, request).enqueue(new Callback<Task>() {
+        taskRepository.createTask(projectId, title, description, new DataCallback<Task>() {
             @Override
-            public void onResponse(Call<Task> call, Response<Task> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(TaskActivity.this, "Task created successfully.", Toast.LENGTH_SHORT).show();
+            public void onSuccess(Task result) {
+                Toast.makeText(TaskActivity.this, "Task created successfully.", Toast.LENGTH_SHORT).show();
 
-                    taskTitleEditText.setText("");
-                    taskDescriptionEditText.setText("");
+                taskTitleEditText.setText("");
+                taskDescriptionEditText.setText("");
 
-                    loadTasks();
-                } else {
-                    Toast.makeText(TaskActivity.this,
-                            "Failed to create task. Code: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
-                }
+                loadTasks();
             }
 
             @Override
-            public void onFailure(Call<Task> call, Throwable t) {
-                Toast.makeText(TaskActivity.this,
-                        "Network error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+            public void onError(String errorMessage) {
+                Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -218,28 +204,17 @@ public class TaskActivity extends AppCompatActivity {
         int taskId = Integer.parseInt(taskIdText);
         String selectedStatus = statusSpinner.getSelectedItem().toString();
 
-        TaskStatusUpdateRequest request = new TaskStatusUpdateRequest(selectedStatus);
-        ApiService apiService = ApiClient.getApiService();
-
-        apiService.updateTaskStatus(taskId, request).enqueue(new Callback<Task>() {
+        taskRepository.updateTaskStatus(taskId, selectedStatus, new DataCallback<Task>() {
             @Override
-            public void onResponse(Call<Task> call, Response<Task> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(TaskActivity.this, "Task status updated.", Toast.LENGTH_SHORT).show();
-                    taskIdEditText.setText("");
-                    loadTasks();
-                } else {
-                    Toast.makeText(TaskActivity.this,
-                            "Failed to update status. Code: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
-                }
+            public void onSuccess(Task result) {
+                Toast.makeText(TaskActivity.this, "Task status updated.", Toast.LENGTH_SHORT).show();
+                taskIdEditText.setText("");
+                loadTasks();
             }
 
             @Override
-            public void onFailure(Call<Task> call, Throwable t) {
-                Toast.makeText(TaskActivity.this,
-                        "Network error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+            public void onError(String errorMessage) {
+                Toast.makeText(TaskActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }

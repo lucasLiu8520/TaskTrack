@@ -22,12 +22,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.example.tasktrack.repository.DataCallback;
+import com.example.tasktrack.repository.ProjectRepository;
+import com.example.tasktrack.repository.RepositoryProvider;
+
 public class MainActivity extends AppCompatActivity {
 
     private ListView projectsListView;
     private EditText projectNameEditText;
     private EditText projectDescriptionEditText;
     private Button addProjectButton;
+
+    private ProjectRepository projectRepository;
 
     private final List<Project> projectObjects = new ArrayList<>();
     private final List<String> projectDisplayNames = new ArrayList<>();
@@ -64,46 +70,38 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        projectRepository = RepositoryProvider.getProjectRepository();
+
         addProjectButton.setOnClickListener(v -> createProject());
 
         loadProjects();
     }
 
     private void loadProjects() {
-        ApiService apiService = ApiClient.getApiService();
-
-        apiService.getProjects().enqueue(new Callback<List<Project>>() {
+        projectRepository.getProjects(new DataCallback<List<Project>>() {
             @Override
-            public void onResponse(Call<List<Project>> call, Response<List<Project>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    projectObjects.clear();
-                    projectDisplayNames.clear();
+            public void onSuccess(List<Project> projects) {
+                projectObjects.clear();
+                projectDisplayNames.clear();
 
-                    List<Project> projects = response.body();
-                    projectObjects.addAll(projects);
+                projectObjects.addAll(projects);
 
-                    for (Project project : projects) {
-                        projectDisplayNames.add(project.getName());
-                    }
-
-                    if (projectDisplayNames.isEmpty()) {
-                        projectDisplayNames.add("No projects found.");
-                    }
-
-                    adapter.notifyDataSetChanged();
-                } else {
-                    projectObjects.clear();
-                    projectDisplayNames.clear();
-                    projectDisplayNames.add("Failed to load projects. Code: " + response.code());
-                    adapter.notifyDataSetChanged();
+                for (Project project : projects) {
+                    projectDisplayNames.add(project.getName());
                 }
+
+                if (projectDisplayNames.isEmpty()) {
+                    projectDisplayNames.add("No projects found.");
+                }
+
+                adapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(Call<List<Project>> call, Throwable t) {
+            public void onError(String errorMessage) {
                 projectObjects.clear();
                 projectDisplayNames.clear();
-                projectDisplayNames.add("Network error: " + t.getMessage());
+                projectDisplayNames.add(errorMessage);
                 adapter.notifyDataSetChanged();
             }
         });
@@ -118,31 +116,20 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        ProjectCreateRequest request = new ProjectCreateRequest(name, description);
-        ApiService apiService = ApiClient.getApiService();
-
-        apiService.createProject(request).enqueue(new Callback<Project>() {
+        projectRepository.createProject(name, description, new DataCallback<Project>() {
             @Override
-            public void onResponse(Call<Project> call, Response<Project> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Toast.makeText(MainActivity.this, "Project created successfully.", Toast.LENGTH_SHORT).show();
+            public void onSuccess(Project result) {
+                Toast.makeText(MainActivity.this, "Project created successfully.", Toast.LENGTH_SHORT).show();
 
-                    projectNameEditText.setText("");
-                    projectDescriptionEditText.setText("");
+                projectNameEditText.setText("");
+                projectDescriptionEditText.setText("");
 
-                    loadProjects();
-                } else {
-                    Toast.makeText(MainActivity.this,
-                            "Failed to create project. Code: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
-                }
+                loadProjects();
             }
 
             @Override
-            public void onFailure(Call<Project> call, Throwable t) {
-                Toast.makeText(MainActivity.this,
-                        "Network error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+            public void onError(String errorMessage) {
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }
