@@ -1,11 +1,15 @@
 package com.example.tasktrack;
 
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tasktrack.model.Task;
+import com.example.tasktrack.model.TaskCreateRequest;
 import com.example.tasktrack.network.ApiClient;
 import com.example.tasktrack.network.ApiService;
 
@@ -19,6 +23,10 @@ public class TaskActivity extends AppCompatActivity {
 
     private TextView projectTitleTextView;
     private TextView tasksTextView;
+    private EditText taskTitleEditText;
+    private EditText taskDescriptionEditText;
+    private Button addTaskButton;
+
     private int projectId;
     private String projectName;
 
@@ -29,6 +37,9 @@ public class TaskActivity extends AppCompatActivity {
 
         projectTitleTextView = findViewById(R.id.projectTitleTextView);
         tasksTextView = findViewById(R.id.tasksTextView);
+        taskTitleEditText = findViewById(R.id.taskTitleEditText);
+        taskDescriptionEditText = findViewById(R.id.taskDescriptionEditText);
+        addTaskButton = findViewById(R.id.addTaskButton);
 
         projectId = getIntent().getIntExtra("project_id", -1);
         projectName = getIntent().getStringExtra("project_name");
@@ -36,22 +47,20 @@ public class TaskActivity extends AppCompatActivity {
         projectTitleTextView.setText(projectName != null ? projectName : "Unknown Project");
 
         if (projectId == -1) {
-            // This acts as a safety check.
-            // If the project ID was not passed correctly from MainActivity, the task screen stops
-            // early and shows a clear mesage
             tasksTextView.setText("Invalid project ID.");
+            addTaskButton.setEnabled(false);
             return;
         }
+
+        addTaskButton.setOnClickListener(v -> createTask());
 
         loadTasks();
     }
 
     private void loadTasks() {
-        // This function keeps network logic separate from onCreate()
         ApiService apiService = ApiClient.getApiService();
 
         apiService.getTasksForProject(projectId).enqueue(new Callback<List<Task>>() {
-            // Uses the selected project ID to fetch only tasks for that project
             @Override
             public void onResponse(Call<List<Task>> call, Response<List<Task>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -63,7 +72,6 @@ public class TaskActivity extends AppCompatActivity {
                     }
 
                     StringBuilder builder = new StringBuilder();
-                    // Quickest way to display multiple tasks without building a full list UI yet.
 
                     for (Task task : tasks) {
                         builder.append("ID: ")
@@ -86,6 +94,44 @@ public class TaskActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Task>> call, Throwable t) {
                 tasksTextView.setText("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void createTask() {
+        String title = taskTitleEditText.getText().toString().trim();
+        String description = taskDescriptionEditText.getText().toString().trim();
+
+        if (title.isEmpty() || description.isEmpty()) {
+            Toast.makeText(this, "Please enter both title and description.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        TaskCreateRequest request = new TaskCreateRequest(title, description);
+        ApiService apiService = ApiClient.getApiService();
+
+        apiService.createTask(projectId, request).enqueue(new Callback<Task>() {
+            @Override
+            public void onResponse(Call<Task> call, Response<Task> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Toast.makeText(TaskActivity.this, "Task created successfully.", Toast.LENGTH_SHORT).show();
+
+                    taskTitleEditText.setText("");
+                    taskDescriptionEditText.setText("");
+
+                    loadTasks();
+                } else {
+                    Toast.makeText(TaskActivity.this,
+                            "Failed to create task. Code: " + response.code(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Task> call, Throwable t) {
+                Toast.makeText(TaskActivity.this,
+                        "Network error: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
