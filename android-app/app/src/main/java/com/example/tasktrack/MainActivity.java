@@ -18,6 +18,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.content.Intent;
+
 public class MainActivity extends AppCompatActivity {
 
     private ListView projectsListView;
@@ -41,13 +43,20 @@ public class MainActivity extends AppCompatActivity {
         projectsListView.setAdapter(adapter);
 
         projectsListView.setOnItemClickListener((parent, view, position, id) -> {
+           if (position >= projectObjects.size()) {
+            // This is a simple check in case the visible list contains placeholder text like "No projects found."
+            // To prevent an index error.
+              return;
+           }
+
             Project selectedProject = projectObjects.get(position);
 
-            Toast.makeText(
-                    MainActivity.this,
-                    "Selected project: " + selectedProject.getName(),
-                    Toast.LENGTH_SHORT
-            ).show();
+            Intent intent = new Intent(MainActivity.this, TaskActivity.class);
+            // An Intent tells Android to move from one Activity to another.
+            intent.putExtra("project_id", selectedProject.getId());
+            intent.putExtra("project_name", selectedProject.getName());
+            // This sends data to the next screen.
+            startActivity(intent);
         });
 
         loadProjects();
