@@ -84,9 +84,11 @@ This design allows the **same Android UI** to operate with either a **remote bac
 - Update task status
 
 Task statuses:
+```text
 TODO
 IN_PROGRESS
 DONE
+```
 
 ## Navigation
 
@@ -135,7 +137,9 @@ LOCAL mode is useful when running the project on another machine where starting 
 # Current Mode Configuration
 
 The application mode is configured in:
+```text
 android-app/app/src/main/java/com/example/tasktrack/config/AppConfig.java
+```
 
 Set the current mode:
 ```java
@@ -149,25 +153,25 @@ public static final AppMode CURRENT_MODE = AppMode.LOCAL;
 # Technologies Used
 
 ## Backend
-Python
-FastAPI
-Uvicorn
+- Python
+- FastAPI
+- Uvicorn
 
 ## Android
-Java
-Android Studio
-Retrofit
-Room Database
-RecyclerView
+- Java
+- Android Studio
+- Retrofit
+- Room Database
+- RecyclerView
 
 ## Database
-SQLite (via Room)
+- SQLite (via Room)
 
 ## Development Tools
-Git
-GitHub
-VS Code
-Android Studio
+- Git
+- GitHub
+- VS Code
+- Android Studio
 
 ---
 
@@ -204,7 +208,9 @@ Steps
 1. Open the Android project in Android Studio
 
 2. Set: 
+```java
 AppConfig.CURRENT_MODE = AppMode.LOCAL
+```
 
 3. Run the app on an emulator or Android device
 
@@ -223,81 +229,85 @@ Notes
 ## Option B — Run in REMOTE Mode
 
 Use this mode to demonstrate backend integration.
-Backend Setup
+
+### Backend Setup
 
 Open the project root in VS Code.
 
 Activate the Python virtual environment and run:
+
 ```bash
 uvicorn backend.main:app --reload
 ```
 
 Optional: open FastAPI API docs:
-http://127.0.0.1:8000/docs
 
-Android Setup
+```text
+http://127.0.0.1:8000/docs
+```
+
+### Android Setup
 
 1. Open the Android project in Android Studio
-
 2. Set:
+
+```java
 AppConfig.CURRENT_MODE = AppMode.REMOTE
+```
 
 3. Run the app on the Android emulator
 
 The emulator connects to:
+
+```text
 http://10.0.2.2:8000
+```
 
-Notes
+### Notes
 
-1. The backend must be started manually
-
-2. Backend storage is currently in-memory
-
-3. Data resets when the FastAPI server restarts
+- The backend must be started manually
+- Backend storage is currently in-memory
+- Data resets when the FastAPI server restarts
 
 ---
 
 # Backend Development Helpers
 
 The backend includes helper endpoints for testing.
+
+```text
 POST /dev/reset
+```
+
 Clears all in-memory backend data.
 
+```text
 POST /dev/seed
+```
+
 Loads sample demo data.
 
 These endpoints are useful when demonstrating REMOTE mode.
 
 # Example User Flow
+
 ## LOCAL Mode
 
-Launch the app
-
-Create a project
-
-Open the project
-
-Create tasks
-
-Update task status
-
-Restart the app and confirm data persists
-
----
+1. Launch the app
+2. Create a project
+3. Open the project
+4. Create tasks
+5. Update task status
+6. Restart the app and confirm data persists
 
 ## REMOTE Mode
 
-Start the FastAPI backend
-
-Launch the Android app
-
-Load projects from the backend
-
-Open a project
-
-Create tasks
-
-Update task status
+1. Start the FastAPI backend
+2. Launch the Android app
+3. Load projects from the backend
+4. Open a project
+5. Create tasks
+6. Update task status
 
 ---
 
@@ -305,21 +315,14 @@ Update task status
 
 Possible enhancements include:
 
-improved task row UI
-
-delete project and task functionality
-
-task editing
-
-startup screen for choosing LOCAL vs REMOTE mode
-
-persistent backend database
-
-user authentication
-
-multi-user support
-
-cloud deployment
+- improved task row UI
+- delete project and task functionality
+- task editing
+- startup screen for choosing LOCAL vs REMOTE mode
+- persistent backend database
+- user authentication
+- multi-user support
+- cloud deployment
 
 ---
 
