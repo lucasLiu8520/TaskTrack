@@ -1,4 +1,4 @@
-# COSC310 Task Management App
+# Task Management App
 
 A task management application developed as part of a **Software Engineering project**.
 
@@ -22,6 +22,18 @@ The project demonstrates software engineering concepts including:
 - repository pattern
 - local persistence
 - modular design
+
+---
+
+# Demo Video
+
+Watch the application demo:
+
+https://youtube.com/shorts/knPTvtDg3D8?feature=share
+- launching the app
+- creating a project
+- creating tasks
+- updating task status
 
 ---
 
@@ -153,7 +165,7 @@ Android Studio
 ---
 
 # Project Structure
-cosc310-task-app/
+task-app/
 │
 ├── backend/                  # FastAPI backend
 │   ├── main.py
