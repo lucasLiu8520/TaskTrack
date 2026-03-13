@@ -172,6 +172,7 @@ Android Studio
 ---
 
 # Project Structure
+```text
 task-app/
 │
 ├── backend/                  # FastAPI backend
@@ -189,6 +190,7 @@ task-app/
 │
 ├── README.md
 └── .gitignore
+```
 
 ![Class Diagram](docs/uml/class-diagram.png)
 
