@@ -34,7 +34,8 @@ https://youtube.com/shorts/knPTvtDg3D8?feature=share
 - creating a project
 - creating tasks
 - updating task status
-
+![Project List](docs/screenshots/project-list.png)
+![Task List](docs/screenshots/task-list.png)
 ---
 
 # System Architecture
@@ -42,6 +43,7 @@ https://youtube.com/shorts/knPTvtDg3D8?feature=share
 The application supports two execution modes.
 
 ### REMOTE Mode
+```text
 Android UI
 ↓
 Repository Layer
@@ -51,8 +53,10 @@ Retrofit API Client
 FastAPI Backend
 ↓
 Backend Storage
+```
 
 ### LOCAL Mode
+```text
 Android UI
 ↓
 Repository Layer
@@ -60,6 +64,7 @@ Repository Layer
 Room Database
 ↓
 SQLite Local Storage
+```
 
 
 This design allows the **same Android UI** to operate with either a **remote backend** or a **local database**.
@@ -135,9 +140,13 @@ The application mode is configured in:
 android-app/app/src/main/java/com/example/tasktrack/config/AppConfig.java
 
 Set the current mode:
+```java
 public static final AppMode CURRENT_MODE = AppMode.REMOTE;
+```
 or
+```java
 public static final AppMode CURRENT_MODE = AppMode.LOCAL;
+```
 
 # Technologies Used
 
@@ -183,6 +192,8 @@ task-app/
 ├── README.md
 └── .gitignore
 
+![Class Diagram](docs/uml/class-diagram.png)
+
 # Running the Project
 ## Option A — Run in LOCAL Mode (Recommended)
 
@@ -217,7 +228,9 @@ Backend Setup
 Open the project root in VS Code.
 
 Activate the Python virtual environment and run:
+```bash
 uvicorn backend.main:app --reload
+```
 
 Optional: open FastAPI API docs:
 http://127.0.0.1:8000/docs

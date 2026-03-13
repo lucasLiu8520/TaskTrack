@@ -84,7 +84,7 @@ SQLite Local Storage
 
 The class diagram below illustrates the structure of the Android client, repository layer, remote API integration, and local Room database components.
 
-(uml/class-diagram.png)
+![Class Diagram](uml/class-diagram.png)
 ---
 
 ## 3. Backend Architecture
