@@ -34,8 +34,6 @@ https://youtube.com/shorts/knPTvtDg3D8?feature=share
 - creating a project
 - creating tasks
 - updating task status
-![Project List](docs/screenshots/project-list.png)
-![Task List](docs/screenshots/task-list.png)
 ---
 
 # System Architecture
