@@ -192,7 +192,7 @@ task-app/
 └── .gitignore
 ```
 
-![Class Diagram](docs/uml/class-diagram.png)
+![Class Diagram](docs/uml/Class-Diagram.png)
 
 # Running the Project
 ## Option A — Run in LOCAL Mode (Recommended)
