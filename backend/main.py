@@ -10,7 +10,7 @@ from backend.schemas import (
 )
 from backend import storage
 
-app = FastAPI(title="COSC310 Task Management API")
+app = FastAPI(title="Task Management API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,7 +24,7 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {
-        "message": "COSC310 Task Management API is running",
+        "message": "Task Management API is running",
         "note": "Data is stored in memory and resets when the server restarts."
     }
 
@@ -54,7 +54,7 @@ def seed_data():
 
     project1 = Project(
         id=storage.project_id_counter,
-        name="COSC310 Demo Project",
+        name="Demo Project",
         description="Demo project for Android integration"
     )
     storage.projects.append(project1)

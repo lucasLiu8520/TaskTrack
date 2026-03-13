@@ -79,6 +79,12 @@ Room Database
     ↓
 SQLite Local Storage
 
+
+## UML Class Diagram
+
+The class diagram below illustrates the structure of the Android client, repository layer, remote API integration, and local Room database components.
+
+(uml/class-diagram.png)
 ---
 
 ## 3. Backend Architecture
