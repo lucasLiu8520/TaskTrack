@@ -1,175 +1,308 @@
 # COSC310 Task Management App
 
-A task management application built as a software engineering project.  
-The project includes:
+A task management application developed as part of a **Software Engineering project**.
 
-- a **FastAPI backend**
-- an **Android client built in Android Studio**
-- a **dual-mode Android architecture**
-  - **REMOTE mode**: Android app connects to the FastAPI backend
-  - **LOCAL mode**: Android app runs independently using Room local storage
+The system consists of:
 
-This project was designed to demonstrate software engineering practices including requirements analysis, architecture design, modular implementation, API integration, Android development, and maintainability.
+- **FastAPI backend**
+- **Android client built in Android Studio**
+- **Dual-mode architecture**
+
+The Android application can run in two modes:
+
+- **REMOTE mode** — Android connects to the FastAPI backend
+- **LOCAL mode** — Android runs independently using Room local storage
+
+The project demonstrates software engineering concepts including:
+
+- requirements specification
+- layered architecture
+- Android development
+- REST API integration
+- repository pattern
+- local persistence
+- modular design
 
 ---
 
-## Features
+# System Architecture
 
-### Project Features
+The application supports two execution modes.
+
+### REMOTE Mode
+Android UI
+↓
+Repository Layer
+↓
+Retrofit API Client
+↓
+FastAPI Backend
+↓
+Backend Storage
+
+### LOCAL Mode
+Android UI
+↓
+Repository Layer
+↓
+Room Database
+↓
+SQLite Local Storage
+
+
+This design allows the **same Android UI** to operate with either a **remote backend** or a **local database**.
+
+---
+
+# Features
+
+## Project Management
+
 - Create projects
 - View project list
 - Open a selected project
 
-### Task Features
+## Task Management
+
 - View tasks for a selected project
 - Create tasks
-- Update task status (`TODO`, `IN_PROGRESS`, `DONE`)
+- Update task status
 
-### Navigation
+Task statuses:
+TODO
+IN_PROGRESS
+DONE
+
+## Navigation
+
 - Navigate from project list to task screen
 - Return to the previous screen using Android back navigation
 
-### Data Modes
+## Data Modes
+
 - **REMOTE mode** uses FastAPI + Retrofit
-- **LOCAL mode** uses Room for standalone Android execution
+- **LOCAL mode** uses Room database for standalone Android execution
 
 ---
 
-## Project Modes
+# Project Modes
 
-### 1. REMOTE Mode
+## 1. REMOTE Mode
+
 In REMOTE mode, the Android app connects to the FastAPI backend.
 
-Use this mode to demonstrate:
+This demonstrates:
+
 - client-server architecture
-- REST API integration
-- backend-driven workflows
+- REST API communication
+- backend-driven data management
 
-In this mode, the backend must be started manually.
-
-### 2. LOCAL Mode
-In LOCAL mode, the Android app stores all data locally using Room.
-
-Use this mode to demonstrate:
-- standalone Android execution
-- persistent local storage
-- no external backend dependency
-
-This mode is useful for testing on another computer where running the Python backend separately is inconvenient.
+In this mode the backend must be started manually.
 
 ---
 
-## Current Mode Configuration
+## 2. LOCAL Mode
 
-The Android app mode is controlled in:
+In LOCAL mode, the Android app runs independently.
 
-```java
+All data is stored locally using **Room**.
+
+This demonstrates:
+
+- standalone Android execution
+- local persistence
+- offline functionality
+
+LOCAL mode is useful when running the project on another machine where starting the backend is inconvenient.
+
+---
+
+# Current Mode Configuration
+
+The application mode is configured in:
 android-app/app/src/main/java/com/example/tasktrack/config/AppConfig.java
 
-Set
+Set the current mode:
 public static final AppMode CURRENT_MODE = AppMode.REMOTE;
-for backend-connected mode, 
-
-or:
+or
 public static final AppMode CURRENT_MODE = AppMode.LOCAL;
-for standalone local mode.
 
-Technologies Used
-Backend
+# Technologies Used
+
+## Backend
 Python
 FastAPI
 Uvicorn
-Android
+
+## Android
 Java
 Android Studio
 Retrofit
+Room Database
+RecyclerView
 
-Room
-SQLite (through Room)
+## Database
+SQLite (via Room)
 
-Development Tools
+## Development Tools
 Git
 GitHub
 VS Code
 Android Studio
 
+---
+
+# Project Structure
 cosc310-task-app/
+│
 ├── backend/                  # FastAPI backend
+│   ├── main.py
+│   ├── schemas.py
+│   ├── storage.py
+│   └── requirements.txt
+│
 ├── android-app/              # Android Studio project
-├── docs/                     # Requirements, architecture, UML
+│
+├── docs/                     # Documentation
 │   ├── requirements.md
 │   ├── architecture.md
 │   └── uml/
+│
 ├── README.md
 └── .gitignore
 
-Running the Project
-Option A — Run in LOCAL mode (Standalone Android)
-This is the easiest way to run the app independently in Android Studio.
+# Running the Project
+## Option A — Run in LOCAL Mode (Recommended)
+
+This allows the Android app to run independently.
 
 Steps
-Open the Android project in Android Studio
-Set AppConfig.CURRENT_MODE to AppMode.LOCAL
-Run the app on an emulator or Android device
-Create projects and tasks directly in the app
+
+1. Open the Android project in Android Studio
+
+2. Set: 
+AppConfig.CURRENT_MODE = AppMode.LOCAL
+
+3. Run the app on an emulator or Android device
+
+4. Create projects and tasks directly in the app
 
 Notes
-No Python backend is required
-Data is stored locally in the app database
-Data persists across normal app restarts
 
-Option B — Run in REMOTE mode (Backend + Android)
+1. No backend is required
+
+2. Data is stored locally
+
+3. Data persists across normal app restarts
+
+---
+
+## Option B — Run in REMOTE Mode
+
 Use this mode to demonstrate backend integration.
+Backend Setup
 
-Backend steps
-Open the project root in VS Code
-Activate the Python virtual environment
-Start the backend:
+Open the project root in VS Code.
+
+Activate the Python virtual environment and run:
 uvicorn backend.main:app --reload
-Optional: open FastAPI docs at:
+
+Optional: open FastAPI API docs:
 http://127.0.0.1:8000/docs
 
-Android steps
-Open the Android project in Android Studio
-Set AppConfig.CURRENT_MODE to AppMode.REMOTE
-Run the app on an emulator
-Make sure the emulator can access:
-http://10.0.2.2:8000/
+Android Setup
+
+1. Open the Android project in Android Studio
+
+2. Set:
+AppConfig.CURRENT_MODE = AppMode.REMOTE
+
+3. Run the app on the Android emulator
+
+The emulator connects to:
+http://10.0.2.2:8000
 
 Notes
-REMOTE mode depends on the backend being started manually
-Current backend storage is in-memory
-In REMOTE mode, backend data resets when the FastAPI server restarts
 
-Backend Development Helpers
+1. The backend must be started manually
 
-The FastAPI backend includes development helper endpoints:
-POST /dev/reset — clear all in-memory backend data
-POST /dev/seed — load sample demo data
-These are helpful when testing REMOTE mode.
+2. Backend storage is currently in-memory
 
-Example User Flow
+3. Data resets when the FastAPI server restarts
 
-LOCAL mode
-Launch app
+---
+
+# Backend Development Helpers
+
+The backend includes helper endpoints for testing.
+POST /dev/reset
+Clears all in-memory backend data.
+
+POST /dev/seed
+Loads sample demo data.
+
+These endpoints are useful when demonstrating REMOTE mode.
+
+# Example User Flow
+## LOCAL Mode
+
+Launch the app
+
 Create a project
+
 Open the project
-Create tasks
-Update task status
-Restart app and confirm data persists
 
-REMOTE mode
-Start FastAPI backend
-Launch app
-Load projects from backend
+Create tasks
+
+Update task status
+
+Restart the app and confirm data persists
+
+---
+
+## REMOTE Mode
+
+Start the FastAPI backend
+
+Launch the Android app
+
+Load projects from the backend
+
 Open a project
+
 Create tasks
+
 Update task status
 
-Future Improvements
+---
 
-Better task row UI with per-task status controls
-Delete project/task functionality
-More polished task editing
-Optional startup screen for choosing LOCAL vs REMOTE mode
-Persistent backend database instead of in-memory FastAPI storage
+# Future Improvements
+
+Possible enhancements include:
+
+improved task row UI
+
+delete project and task functionality
+
+task editing
+
+startup screen for choosing LOCAL vs REMOTE mode
+
+persistent backend database
+
+user authentication
+
+multi-user support
+
+cloud deployment
+
+---
+
+# Documentation
+Detailed documentation is available in the docs folder
+
+# Summary
+
+The Task Management App demonstrates a clean layered architecture with a flexible data layer that supports both client-server and standalone mobile execution.
+
+The repository pattern allows the Android UI to operate with either a FastAPI backend or a local Room database, making the system modular, testable, and extensible.
